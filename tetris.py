@@ -1,5 +1,6 @@
 from enum import Enum
 import keyboard
+import random
 
 # Define an enumeration for movement directions
 class Movement(Enum):
@@ -20,9 +21,49 @@ screen = [  ["🔳","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","�
             ["🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲"],
             ["🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲"]
              ]  
-rotation = 0    
+pieces = [
+    [
+        ["🔳", "🔲", "🔲"],
+        ["🔳", "🔳", "🔳"]
+    ],
+    [
+        ["🔳", "🔳"],
+        ["🔳", "🔳"]
+    ],
+    [
+       ["🔲", "🔲", "🔳"],
+       ["🔳", "🔳", "🔳"]
+    ],
+    [
+        ["🔲", "🔳", "🔲"],
+        ["🔳", "🔳", "🔳"]
+    ],
+    [
+        ["🔳", "🔳", "🔳","🔳"]
+    ],
+    [
+        ["🔳", "🔳", "🔲"],
+        ["🔲", "🔳", "🔳"]
+    ],
+    [
+        ["🔲", "🔳", "🔳"],
+        ["🔳", "🔳", "🔲"]
+    ]
 
- # Function to print the game screen   
+]
+rotation = 0    
+# Function to choose pieces
+def chooseRandomPieces (pieces):
+    return random.choice(pieces)
+
+# Function to insert a new piece into the board    
+def insertPiece(screen: list, piece: list):
+    for i in range(len(piece)):
+        for j in range(len(piece[0])):
+            screen[i][j] = piece[i][j]
+    return screen
+
+# Function to print the game screen   
 def printScreen(screen: list):
     print("\nPantalla tetris:\n")
     for row in screen:
@@ -36,10 +77,13 @@ def reachedBottom(screen:list):
             return True
     return False        
            
-# Function to move the piece on the screen ºº
+# Function to move the piece on the screen 
 def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
     # print the blank screen in one line
     new_screen = [["🔲"] * 10 for _ in range(10)]
+    # current_piece = chooseRandomPieces(pieces)
+    state = False
+
     rot_item = 0
     rotations = [[(1,1),(0,0),(-2,0),(-1,-1)],
                 [(0,1),(-1,0),(0,-1),(1,-2)],
@@ -71,20 +115,23 @@ def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
                         new_row_index  = row_index + rotations[new_rotation][rot_item][0]
                         new_column_index = column_index + rotations[new_rotation][rot_item][1]
                         rot_item += 1
-                
                 if new_row_index > 9 or new_column_index > 9 or new_column_index < 0:
                     return (screen, rotation)
                 else:
                     new_screen[new_row_index][new_column_index] = "🔳"
-    printScreen(new_screen)
-    reachedBottom(new_screen)
+                    state = reachedBottom(new_screen)
+                    printScreen(new_screen)
+                    if state:
+                        new_screen = insertPiece(new_screen, chooseRandomPieces(pieces))
+                        state = False
+    
     return (new_screen, new_rotation)
 
 
 if __name__ == '__main__':
 
     printScreen(screen)
-    while not reachedBottom(screen):
+    while(True):
         event = keyboard.read_event()
         
         if event.name == "esc":
@@ -100,10 +147,13 @@ if __name__ == '__main__':
                 (screen, rotation) = movePiece(screen, Movement.rotate, rotation)  
 
 
-
+    
 
 
  
+
+
+
 
 
 
