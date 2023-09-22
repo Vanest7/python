@@ -51,16 +51,17 @@ pieces = [
     ]
 
 ]
-rotation = 0    
+rotation = 0 
+occupied_positions = []
 # Function to choose pieces
 def chooseRandomPieces (pieces):
     return random.choice(pieces)
 
 # Function to insert a new piece into the board    
-def insertPiece(screen: list, piece: list):
+def insertPiece(screen: list, piece: list) -> list:
     for i in range(len(piece)):
         for j in range(len(piece[0])):
-            screen[i][j] = piece[i][j]
+            screen[i][j] = piece[i][j]                   
     return screen
 
 # Function to print the game screen   
@@ -70,19 +71,34 @@ def printScreen(screen: list):
         print("".join(map(str, row)))
     
 # Function to check if the piece has reached the bottom row
-def reachedBottom(screen:list):
+def reachedBottom(screen:list)-> bool:
     last_row = screen[9]
     for column in last_row:
         if column == "🔳":
             return True
     return False        
-           
+
+    for column in range(len(screen)):
+        if screen[9][column] == "🔳":
+            return True
+    return False   
+# Function for change piece colour if has reached to bottom
+def changeColour(screen: list)-> list:
+    for row_index, row in enumerate(screen):
+        for column_index, item in enumerate(row):
+            if item == "🔳":
+               screen[row_index][column_index] = "⬛" 
+               occupied_positions.append((row_index, column_index))
+               print(occupied_positions)
+    return screen            
+
 # Function to move the piece on the screen 
 def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
     # print the blank screen in one line
     new_screen = [["🔲"] * 10 for _ in range(10)]
-    # current_piece = chooseRandomPieces(pieces)
-    state = False
+    
+    for row, col in occupied_positions:
+        new_screen[row][col] = "⬛"
 
     rot_item = 0
     rotations = [[(1,1),(0,0),(-2,0),(-1,-1)],
@@ -120,11 +136,10 @@ def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
                 else:
                     new_screen[new_row_index][new_column_index] = "🔳"
                     state = reachedBottom(new_screen)
-                    printScreen(new_screen)
-                    if state:
-                        new_screen = insertPiece(new_screen, chooseRandomPieces(pieces))
-                        state = False
-    
+                if state:
+                    new_screen = changeColour(new_screen)
+                    new_screen = insertPiece(new_screen, chooseRandomPieces(pieces))
+                    
     return (new_screen, new_rotation)
 
 
@@ -145,7 +160,7 @@ if __name__ == '__main__':
                 (screen, rotation) = movePiece(screen, Movement.left, rotation) 
             elif event.name == "space":
                 (screen, rotation) = movePiece(screen, Movement.rotate, rotation)  
-
+        printScreen(screen)
 
     
 
