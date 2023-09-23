@@ -72,16 +72,11 @@ def printScreen(screen: list):
     
 # Function to check if the piece has reached the bottom row
 def reachedBottom(screen:list)-> bool:
-    last_row = screen[9]
-    for column in last_row:
-        if column == "🔳":
-            return True
-    return False        
-
     for column in range(len(screen)):
         if screen[9][column] == "🔳":
             return True
     return False   
+
 # Function for change piece colour if has reached to bottom
 def changeColour(screen: list)-> list:
     for row_index, row in enumerate(screen):
@@ -94,7 +89,7 @@ def changeColour(screen: list)-> list:
 
 # Function to move the piece on the screen 
 def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
-    # print the blank screen in one line
+    # paint the blank screen in one line
     new_screen = [["🔲"] * 10 for _ in range(10)]
     
     for row, col in occupied_positions:
@@ -132,13 +127,13 @@ def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
                         new_column_index = column_index + rotations[new_rotation][rot_item][1]
                         rot_item += 1
                 if new_row_index > 9 or new_column_index > 9 or new_column_index < 0:
-                    return (screen, rotation)
+                 return (screen, rotation)
                 else:
                     new_screen[new_row_index][new_column_index] = "🔳"
-                    state = reachedBottom(new_screen)
-                if state:
-                    new_screen = changeColour(new_screen)
-                    new_screen = insertPiece(new_screen, chooseRandomPieces(pieces))
+    state = reachedBottom(new_screen)
+    if state:
+        new_screen = changeColour(new_screen)
+        new_screen = insertPiece(new_screen, chooseRandomPieces(pieces))
                     
     return (new_screen, new_rotation)
 
