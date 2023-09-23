@@ -72,11 +72,20 @@ def printScreen(screen: list):
     
 # Function to check if the piece has reached the bottom row
 def reachedBottom(screen:list)-> bool:
-    for column in range(len(screen)):
-        if screen[9][column] == "🔳":
-            return True
+    for row in range(len(screen[0])):
+        for column in range(len(screen[0])):
+            if screen[9][column] == "🔳":
+                return True
+            if screen[row][column] =="⬛":
+                if screen[row-1][column] == "🔳":
+                    return True
     return False   
-
+# for column in range(len(screen[0])):  # Iterate through columns
+#         if screen[-1][column] == "🔳":
+#             return True
+#         elif screen[-1][column] == "⬛" and screen[-2][column] == "🔳":
+#             return True
+#     return False
 # Function for change piece colour if has reached to bottom
 def changeColour(screen: list)-> list:
     for row_index, row in enumerate(screen):
