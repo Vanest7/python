@@ -20,7 +20,11 @@ screen = [  ["🔳","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","�
             ["🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲"],
             ["🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲"],
             ["🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲","🔲"]
-             ]  
+             ] 
+rotations = [[(1,1),(0,0),(-2,0),(-1,-1)],
+                [(0,1),(-1,0),(0,-1),(1,-2)],
+                [(0,2),(1,1),(-1,1),(-2,0)],
+                [(0,1),(1,0),(2,-1),(1,-2)]] 
 pieces = [
     [
         ["🔳", "🔲", "🔲"],
@@ -80,12 +84,73 @@ def reachedBottom(screen:list)-> bool:
                 if screen[row-1][column] == "🔳":
                     return True
     return False   
-# for column in range(len(screen[0])):  # Iterate through columns
-#         if screen[-1][column] == "🔳":
-#             return True
-#         elif screen[-1][column] == "⬛" and screen[-2][column] == "🔳":
-#             return True
-#     return False
+# Function to check the rotation
+def pieceRotations(piece)-> list:
+    match piece:
+        case [['🔳', '🔳'], ['🔳', '🔳']]:
+            
+            return [
+                [(0,0),(0,0),(0,0),(0,0)],
+                [(0,0),(0,0),(0,0),(0,0)],
+                [(0,0),(0,0),(0,0),(0,0)],
+                [(0,0),(0,0),(0,0),(0,0)]]
+        case [["🔳", "🔲", "🔲"],
+            ["🔳", "🔳", "🔳"]]:
+            
+            return [
+                [(1,1),(0,0),(-2,0),(-1,-1)],
+                [(0,1),(-1,0),(0,-1),(1,-2)],
+                [(0,2),(1,1),(-1,1),(-2,0)],
+                [(0,1),(1,0),(2,-1),(1,-2)]]
+        case [["🔲", "🔲", "🔳"],
+            ["🔳", "🔳", "🔳"]]:
+            
+            return [
+                [(0,2),(1,1),(0,0),(-1,-1)],
+                [(2,-1),(-1,0),(0,-1),(1,-2)],
+                [(0,2),(-1,1),(-2,0),(-1,-1)],
+                [(0,1),(1,0),(2,-1),(-1,0)]
+               ]
+        case [
+        ["🔲", "🔳", "🔲"],
+        ["🔳", "🔳", "🔳"]]:
+            
+            return [
+                [(1,1),(-1,1),(0,0),(-1,-1)],
+                [(1,0),(-1,0),(0,-1),(1,-2)],
+                [(0,2),(-1,1),(0,0),(-2,0)],
+                [(0,1),(1,0),(2,-1),(0,-1)]
+                ]
+        case [["🔳", "🔳", "🔳","🔳"]]:
+            
+            return [
+                [(0,0),(-1,1),(-2,2),(-3,3)],
+                [(0,0),(1,-1),(2,-2),(3,-3)],
+                [(0,0),(-1,1),(-2,2),(-3,3)],
+                [(0,0),(1,-1),(2,-2),(3,-3)]
+                ]
+        case [
+        ["🔳", "🔳", "🔲"],
+        ["🔲", "🔳", "🔳"]]:
+            
+            return [
+                [(1,1),(0,1),(-1,0),(0,-2)],
+                [(0,1),(1,0),(0,-1),(1,-2)],
+                [(1,1),(-1,1),(0,0),(-2,0)],
+                [(0,1),(1,0),(0,-1),(1,-2)]
+                ]
+        case [
+       ["🔲", "🔳", "🔳"],
+       ["🔳", "🔳", "🔲"]]:
+            
+            return [
+                [(0,2),(-1,1),(0,0),(-1,-1)],
+                [(1,0),(2,-1),(-1,0),(0,-1)],
+                [(0,2),(-1,1),(0,0),(-1,-1)],
+                [(1,0),(2,-1),(-1,0),(0,-1)]
+                ]    
+        
+    
 # Function for change piece colour if has reached to bottom
 def changeColour(screen: list)-> list:
     for row_index, row in enumerate(screen):
@@ -97,7 +162,7 @@ def changeColour(screen: list)-> list:
     return screen            
 
 # Function to move the piece on the screen 
-def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
+def movePiece(screen: list, movement: Movement, rotation: int, rotations: list) -> (list, int, list):
     # paint the blank screen in one line
     new_screen = [["🔲"] * 10 for _ in range(10)]
     
@@ -105,10 +170,7 @@ def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
         new_screen[row][col] = "⬛"
 
     rot_item = 0
-    rotations = [[(1,1),(0,0),(-2,0),(-1,-1)],
-                [(0,1),(-1,0),(0,-1),(1,-2)],
-                [(0,2),(1,1),(-1,1),(-2,0)],
-                [(0,1),(1,0),(2,-1),(1,-2)]]
+    
     new_rotation = rotation
     if movement is Movement.rotate:
         if rotation == 3:
@@ -136,15 +198,17 @@ def movePiece(screen: list, movement: Movement, rotation: int) -> (list, int):
                         new_column_index = column_index + rotations[new_rotation][rot_item][1]
                         rot_item += 1
                 if new_row_index > 9 or new_column_index > 9 or new_column_index < 0:
-                 return (screen, rotation)
+                 return (screen, rotation, rotations)
                 else:
                     new_screen[new_row_index][new_column_index] = "🔳"
     state = reachedBottom(new_screen)
     if state:
         new_screen = changeColour(new_screen)
-        new_screen = insertPiece(new_screen, chooseRandomPieces(pieces))
-                    
-    return (new_screen, new_rotation)
+        new_piece = chooseRandomPieces(pieces)
+        new_screen = insertPiece(new_screen, new_piece)
+        rotations = pieceRotations(new_piece)
+        new_rotation = 0    
+    return (new_screen, new_rotation, rotations)
 
 
 if __name__ == '__main__':
@@ -157,13 +221,13 @@ if __name__ == '__main__':
             break
         elif event.event_type == keyboard.KEY_DOWN:
             if event.name == "down":
-                (screen, rotation) = movePiece(screen, Movement.down, rotation)
+                (screen, rotation, rotations) = movePiece(screen, Movement.down, rotation, rotations)
             elif event.name == "right":   
-                (screen, rotation) = movePiece(screen, Movement.right, rotation)
+                (screen, rotation, rotations) = movePiece(screen, Movement.right, rotation, rotations)
             elif event.name == "left":
-                (screen, rotation) = movePiece(screen, Movement.left, rotation) 
+                (screen, rotation, rotations) = movePiece(screen, Movement.left, rotation, rotations) 
             elif event.name == "space":
-                (screen, rotation) = movePiece(screen, Movement.rotate, rotation)  
+                (screen, rotation, rotations) = movePiece(screen, Movement.rotate, rotation, rotations)  
         printScreen(screen)
 
     
