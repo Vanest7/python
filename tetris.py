@@ -166,7 +166,15 @@ def cleanEntiredRows(screen):
     else:
         return screen
 
-    
+# Function to check if game over
+def gameOver(screen):
+    for _ in range(len(screen[0])):
+        for column in range(len(screen[0])):
+            if screen[1][column] == "⬛":
+                print("----------GAME OVER-----------")
+                return True
+    return False
+
 # Function for change piece colour if has reached to bottom
 def changeColour(screen: list)-> list:
     for row_index, row in enumerate(screen):
@@ -233,6 +241,8 @@ if __name__ == '__main__':
         event = keyboard.read_event()
         
         if event.name == "esc":
+            break
+        elif gameOver(screen):
             break
         elif event.event_type == keyboard.KEY_DOWN:
             if event.name == "down":
