@@ -149,7 +149,23 @@ def pieceRotations(piece)-> list:
                 [(0,2),(-1,1),(0,0),(-1,-1)],
                 [(1,0),(2,-1),(-1,0),(0,-1)]
                 ]    
-        
+
+# Function to clean entired rows
+def cleanEntiredRows(screen):
+    rows_to_remove = []
+    
+    for row_index, row in enumerate(screen):
+        if all(cell == "⬛" for cell in row):
+            rows_to_remove.append(row_index)
+
+    if rows_to_remove:
+        max_row = len(screen) -1
+        occupied_positions[:] = [(row, col) for row, col in occupied_positions if row not in rows_to_remove]
+        occupied_positions[:] = [(min(row + len(rows_to_remove), max_row), col) for row, col in occupied_positions]
+        return screen
+    else:
+        return screen
+
     
 # Function for change piece colour if has reached to bottom
 def changeColour(screen: list)-> list:
@@ -158,14 +174,12 @@ def changeColour(screen: list)-> list:
             if item == "🔳":
                screen[row_index][column_index] = "⬛" 
                occupied_positions.append((row_index, column_index))
-               print(occupied_positions)
     return screen            
 
 # Function to move the piece on the screen 
 def movePiece(screen: list, movement: Movement, rotation: int, rotations: list) -> (list, int, list):
     # paint the blank screen in one line
     new_screen = [["🔲"] * 10 for _ in range(10)]
-    
     for row, col in occupied_positions:
         new_screen[row][col] = "⬛"
 
@@ -201,10 +215,11 @@ def movePiece(screen: list, movement: Movement, rotation: int, rotations: list) 
                  return (screen, rotation, rotations)
                 else:
                     new_screen[new_row_index][new_column_index] = "🔳"
-    state = reachedBottom(new_screen)
-    if state:
+    
+    if reachedBottom(new_screen):
         new_screen = changeColour(new_screen)
         new_piece = chooseRandomPieces(pieces)
+        new_screen = cleanEntiredRows(new_screen)
         new_screen = insertPiece(new_screen, new_piece)
         rotations = pieceRotations(new_piece)
         new_rotation = 0    
